@@ -19,7 +19,7 @@
   <%= f.label :transaction_type, "Buy/Sell" %>
   <%= f.select :transaction_type, [["Buy", "buy"], ["Sell", "sell"]] %>
   <%= f.label :price %>
-  <%= f.number_field :price, value: @stock.current_price, disabled: true %>
+  <%= f.number_field :price, value: @stock.stock_quote.latest_price, disabled: true %>
   <%= f.label :quantity %>
   <%= f.number_field :quantity %>
   <%= f.submit "Submit", disable_with: 'Processing...' %>

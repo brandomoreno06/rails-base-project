@@ -7,7 +7,7 @@ FactoryBot.define do
   factory :stock do
     code { 'AAPL' }
     name { 'Apple' }
-    current_price { 1_000 }
+    # current_price { 1_000 }
   end
 
   factory :trade do
@@ -28,5 +28,13 @@ FactoryBot.define do
     stock_code { 'AAPL' }
     quantity { 1_000 }
     association :user
+  end
+
+  factory :stock_quote do
+    change { 10 }
+    change_percent_s { '10%' }
+    latest_time { 'September 17, 2021' }
+    latest_price { 1_000 }
+    association :stock
   end
 end

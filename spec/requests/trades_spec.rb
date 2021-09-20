@@ -9,6 +9,8 @@ RSpec.describe 'Trades', type: :request do
   describe 'new trade' do
     it 'gets /stocks/:stock_id/trades/new' do
       sign_in user, scope: :user
+      StockQuote.create(stock_code: stock.code, change: 10, change_percent_s: '10%', latest_time: 'September 17, 2021', latest_price: 1_000)
+
       get new_stock_trade_path(stock)
       expect(response).to have_http_status(:ok)
     end
@@ -18,55 +20,56 @@ RSpec.describe 'Trades', type: :request do
     before do
       sign_in user, scope: :user
       Wallet.create(user_id: user.id, running_balance: 1_000_000)
+      StockQuote.create(stock_code: stock.code, change: 10, change_percent_s: '10%', latest_time: 'September 17, 2021', latest_price: 1_000)
     end
 
     it 'posts to /stocks/:stock_id/trades/new' do
       sign_in user, scope: :user
-      post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.current_price, quantity: 100, transaction_type: 'buy' } }
+      post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.stock_quote.latest_price, quantity: 100, transaction_type: 'buy' } }
       expect(response).to redirect_to new_stock_trade_path
     end
 
     it 'rerenders new if posts to /stocks/:stock_id/trades/new failed' do
       sign_in user, scope: :user
-      post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.current_price, quantity: 100 } } # no transaction_type
+      post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.stock_quote.latest_price, quantity: 100 } } # no transaction_type
       expect(response).to render_template(:new)
     end
 
     it 'updates running_balance on user wallet on "buy" transaction' do
-      post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.current_price, quantity: 100, transaction_type: 'buy' } }
+      post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.stock_quote.latest_price, quantity: 100, transaction_type: 'buy' } }
       expect(user.wallet.running_balance).to eq(900_000)
     end
 
     it 'updates running_balance on user wallet on "sell" trasaction' do
       user_stock
-      post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.current_price, quantity: 100, transaction_type: 'sell' } }
+      post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.stock_quote.latest_price, quantity: 100, transaction_type: 'sell' } }
       expect(user.wallet.running_balance).to eq(1_100_000)
     end
 
     it 'does not update running_balance on user wallet on "sell" transaction if user_stock quantity is 0 or nil' do
-      post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.current_price, quantity: 100, transaction_type: 'sell' } }
+      post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.stock_quote.latest_price, quantity: 100, transaction_type: 'sell' } }
       expect(user.wallet.running_balance).to eq(1_000_000)
     end
 
     it 'creates user_stock if it does not exists on "buy" transaction' do
-      expect { post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.current_price, quantity: 100, transaction_type: 'buy' } } }.to change { user.user_stocks.count }.by(1)
+      expect { post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.stock_quote.latest_price, quantity: 100, transaction_type: 'buy' } } }.to change { user.user_stocks.count }.by(1)
     end
 
     it 'updates user_stock' do
       user_stock
-      post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.current_price, quantity: 100, transaction_type: 'sell' } }
+      post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.stock_quote.latest_price, quantity: 100, transaction_type: 'sell' } }
       expect(user.user_stocks.find_by(stock_code: stock.code).quantity).to eq(900)
     end
 
     it 'does not create trade if user has insufficient balance on "buy" transaction' do
       wallet
-      expect { post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.current_price, quantity: 10_000_000, transaction_type: 'buy' } } }.to change { user.trades.count }.by(0)
+      expect { post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.stock_quote.latest_price, quantity: 10_000_000, transaction_type: 'buy' } } }.to change { user.trades.count }.by(0)
     end
 
     it 'does not create trade if user has insufficient quantity of stocks on "sell" transaction' do
       user_stock
 
-      expect { post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.current_price, quantity: 10_000_000, transaction_type: 'sell' } } }.to change { user.trades.count }.by(0)
+      expect { post create_trade_path(stock.code), params: { trade: { user_id: user.id, stock_code: stock.code, price: stock.stock_quote.latest_price, quantity: 10_000_000, transaction_type: 'sell' } } }.to change { user.trades.count }.by(0)
     end
   end
 end

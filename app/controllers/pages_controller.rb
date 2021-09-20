@@ -1,3 +1,5 @@
+require 'iex-ruby-client'
+
 class PagesController < ApplicationController
   def landing
     @stocks = Stock.all

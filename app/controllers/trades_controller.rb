@@ -12,7 +12,7 @@ class TradesController < ApplicationController
     @trade = Trade.new(trade_params)
     @trade.user_id = current_user.id
     @trade.stock_code = params[:stock_code]
-    @trade.price = @stock.current_price
+    @trade.price = @stock.stock_quote.latest_price
     @trade.total_price = CalculateTotalTradePrice.call(@stock, params[:trade][:quantity].to_i)
 
     if @trade.save

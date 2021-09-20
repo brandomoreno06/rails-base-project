@@ -9,6 +9,6 @@ class CalculateTotalTradePrice
   end
 
   def execute
-    @total_price = @stock.current_price * @quantity
+    @total_price = @stock.stock_quote.latest_price * @quantity
   end
 end
