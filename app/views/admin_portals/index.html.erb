@@ -19,7 +19,7 @@
       <tr>
       <% @trades.each do |trade| %>
           <td><%= trade.user_id %></td>
-          <td><%= trade.stock_id %></td>
+          <td><%= trade.stock_code %></td>
           <td><%= trade.price %></td>
           <td><%= trade.quantity %></td>
           <td><%= trade.transaction_type %></td>
