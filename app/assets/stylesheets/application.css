@@ -245,6 +245,38 @@ h2 {
   align-self: flex-start !important;
   text-align: right;
 }
+
+/* pagination */
+
+.pagination {
+  justify-content: center;
+}
+
+.pagination span {
+  display: grid;
+  place-content: center;
+}
+
+
+.pagination span a, 
+.pagination .current {
+  color: white;
+  text-decoration: none;
+  padding: 5px 15px;
+  margin-left: 5px;
+  margin-right: 5px;
+  border-radius: 5px;
+  background-color: rgb(241, 169, 68);
+}
+
+.pagination span a:hover {
+  opacity: 0.9;
+}
+
+.pagination .current {
+  background-color: rgba(255,0,142,0.5) !important;
+}
+
 .form-label {
   color: rgb(214, 138, 16);
 }
@@ -299,4 +331,3 @@ thead {
 .bck-btn {
   margin-left: 48%;
 }
-
