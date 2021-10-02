@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
-  devise_for :admins, path: 'admins', controllers: { sessions: "admins/sessions" }
-  devise_for :users, path: 'users', controllers: { sessions: "users/sessions" }
+  devise_for :admins, path: 'admins', controllers: { sessions: "admins/sessions" }, only: [:sessions]
+  devise_for :users, path: 'users', controllers: { sessions: "users/sessions", registrations: "users/registrations" }, only: [:sessions, :registrations]
 
   get 'admins/home' => 'admin_portals#index'
   get 'admins/show_registered_users' => 'admin_portals#show_registered_users'
